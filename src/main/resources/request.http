@@ -1,0 +1,7 @@
+### Requisição 1
+POST http://localhost:8083/savemovies
+Content-Type: application/json
+
+### Requisição 2
+GET http://localhost:8083/movies
+Content-Type: application/json

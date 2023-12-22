@@ -1,12 +1,17 @@
 package br.araujos.moviesstar.services;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
+import br.araujos.dto.MovieDTO;
+import br.araujos.moviesstar.entity.Movie;
 import br.araujos.moviesstar.infraestrutura.ApiKeyInterceptor;
+import br.araujos.moviesstar.repository.MovieRepository;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -17,17 +22,19 @@ public class MovieService {
     private final OkHttpClient client;
     private final String baseUrl = "https://api.themoviedb.org/3/movie/popular";
 
-    public MovieService(ApiKeyInterceptor apiKeyInterceptor) {
+    private final MovieRepository movieRepository;
+
+    public MovieService(ApiKeyInterceptor apiKeyInterceptor, MovieRepository movieRepository) {
         this.client = new OkHttpClient.Builder()
                 .addInterceptor(apiKeyInterceptor)
                 .build();
+        this.movieRepository = movieRepository;
     }
 
-    public String fetchAllMovies() throws IOException {
-        StringBuilder allMovies = new StringBuilder("[");
+    public List<MovieDTO> fetchAllMovies() throws IOException {
+        List<MovieDTO> allMovies = new ArrayList<>();
         int page = 1;
-        final int maxPages = 3;
-        boolean hasMorePages = true;
+        final int maxPages = 50; // Para buscar 1000 filmes
 
         while (page <= maxPages) {
             String url = baseUrl + "?page=" + page;
@@ -41,18 +48,34 @@ public class MovieService {
                 JSONObject jsonResponse = new JSONObject(responseBody);
                 JSONArray moviesArray = jsonResponse.getJSONArray("results");
 
-                if (page > 1) {
-                    allMovies.append(",");
+                for (int i = 0; i < moviesArray.length(); i++) {
+                    JSONObject movieJson = moviesArray.getJSONObject(i);
+                    MovieDTO movie = new MovieDTO(
+                            movieJson.getLong("id"),
+                            movieJson.getString("title"),
+                            movieJson.optString("poster_path", null),
+                            movieJson.optString("overview", null));
+                    allMovies.add(movie);
                 }
-                allMovies.append(moviesArray.toString());
 
                 int totalPages = jsonResponse.getInt("total_pages");
-                hasMorePages = page < totalPages;
+                if (page >= totalPages) {
+                    break;
+                }
                 page++;
             }
         }
 
-        allMovies.append("]");
-        return allMovies.toString();
+        return allMovies;
+    }
+
+    public void saveMovies(List<MovieDTO> movieDTOs) {
+        for (MovieDTO dto : movieDTOs) {
+            movieRepository.findById(dto.getId())
+                    .orElseGet(() -> {
+                        Movie movie = new Movie(dto.getId(), dto.getTitle(), dto.getPosterPath(), dto.getOverview());
+                        return movieRepository.save(movie);
+                    });
+        }
     }
 }
