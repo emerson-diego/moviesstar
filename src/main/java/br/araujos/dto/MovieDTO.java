@@ -8,6 +8,10 @@ public class MovieDTO {
     private String title;
     private String posterPath;
     private String overview;
+    private String director;
+    private String mainActors;
+    private String genreDescription;
+    private String posterUrl;
 
     // Construtores, getters e setters
 
@@ -19,6 +23,18 @@ public class MovieDTO {
         this.title = title;
         this.posterPath = posterPath;
         this.overview = overview;
+    }
+
+    public MovieDTO(Long id, String title, String posterPath, String overview, String director, String mainActors,
+            String genreDescription, String posterUrl) {
+        this.id = id;
+        this.title = title;
+        this.posterPath = posterPath;
+        this.overview = overview;
+        this.director = director;
+        this.mainActors = mainActors;
+        this.genreDescription = genreDescription;
+        this.posterUrl = posterUrl;
     }
 
     public Long getId() {
@@ -98,6 +114,38 @@ public class MovieDTO {
                 ", posterPath='" + getPosterPath() + "'" +
                 ", overview='" + getOverview() + "'" +
                 "}";
+    }
+
+    public String getDirector() {
+        return this.director;
+    }
+
+    public void setDirector(String director) {
+        this.director = director;
+    }
+
+    public String getMainActors() {
+        return this.mainActors;
+    }
+
+    public void setMainActors(String mainActors) {
+        this.mainActors = mainActors;
+    }
+
+    public String getGenreDescription() {
+        return this.genreDescription;
+    }
+
+    public void setGenreDescription(String genreDescription) {
+        this.genreDescription = genreDescription;
+    }
+
+    public String getPosterUrl() {
+        return this.posterUrl;
+    }
+
+    public void setPosterUrl(String posterUrl) {
+        this.posterUrl = posterUrl;
     }
 
 }

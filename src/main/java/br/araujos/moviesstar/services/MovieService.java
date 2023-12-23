@@ -31,7 +31,7 @@ public class MovieService {
         this.movieRepository = movieRepository;
     }
 
-    public List<MovieDTO> fetchAllMovies() throws IOException {
+    public List<MovieDTO> fetchAllMovies() {
         List<MovieDTO> allMovies = new ArrayList<>();
         int page = 1;
         final int maxPages = 50; // Para buscar 1000 filmes
@@ -41,8 +41,11 @@ public class MovieService {
             Request request = new Request.Builder().url(url).build();
 
             try (Response response = client.newCall(request).execute()) {
-                if (!response.isSuccessful())
-                    throw new IOException("Unexpected code " + response);
+                if (!response.isSuccessful()) {
+                    System.err.println("Erro ao buscar filmes na página " + page + ": " + response);
+                    page++;
+                    continue;
+                }
 
                 String responseBody = response.body().string();
                 JSONObject jsonResponse = new JSONObject(responseBody);
@@ -50,11 +53,20 @@ public class MovieService {
 
                 for (int i = 0; i < moviesArray.length(); i++) {
                     JSONObject movieJson = moviesArray.getJSONObject(i);
+                    long movieId = movieJson.getLong("id");
+
                     MovieDTO movie = new MovieDTO(
                             movieJson.getLong("id"),
                             movieJson.getString("title"),
                             movieJson.optString("poster_path", null),
                             movieJson.optString("overview", null));
+
+                    // Definindo propriedades que podem ser null
+                    movie.setDirector(fetchDirector(movieId)); // Pode retornar null
+                    movie.setMainActors(fetchMainActors(movieId)); // Pode retornar null
+                    movie.setGenreDescription(fetchGenres(movieId)); // Pode retornar null
+                    movie.setPosterUrl(fetchPosterUrl(movieJson)); // Pode retornar null
+
                     allMovies.add(movie);
                 }
 
@@ -62,6 +74,9 @@ public class MovieService {
                 if (page >= totalPages) {
                     break;
                 }
+                page++;
+            } catch (IOException e) {
+                System.err.println("Erro de IO ao buscar filmes na página " + page + ": " + e.getMessage());
                 page++;
             }
         }
@@ -71,11 +86,120 @@ public class MovieService {
 
     public void saveMovies(List<MovieDTO> movieDTOs) {
         for (MovieDTO dto : movieDTOs) {
-            movieRepository.findById(dto.getId())
-                    .orElseGet(() -> {
-                        Movie movie = new Movie(dto.getId(), dto.getTitle(), dto.getPosterPath(), dto.getOverview());
-                        return movieRepository.save(movie);
-                    });
+            Movie movie = movieRepository.findById(dto.getId())
+                    .orElse(new Movie()); // Cria um novo filme se não existir
+
+            // Atualiza as informações do filme com os dados do DTO
+            movie.setId(dto.getId());
+            movie.setTitle(dto.getTitle());
+            movie.setPosterPath(dto.getPosterPath());
+            movie.setOverview(dto.getOverview());
+            movie.setDirector(dto.getDirector()); // Pode ser null
+            movie.setMainActors(dto.getMainActors()); // Pode ser null
+            movie.setGenreDescription(dto.getGenreDescription()); // Pode ser null
+            movie.setPosterUrl(dto.getPosterUrl()); // Pode ser null
+
+            movieRepository.save(movie); // Salva o filme no banco de dados
         }
+    }
+
+    private String fetchDirector(long movieId) {
+        String url = baseUrl + "/" + movieId + "/credits";
+        Request request = new Request.Builder().url(url).build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                // Log do erro e continuação da execução
+                System.err.println("Erro ao buscar diretor para o filme ID " + movieId + ": " + response);
+                return null; // Retorna null se a requisição não for bem-sucedida
+            }
+
+            String responseBody = response.body().string();
+            JSONObject jsonResponse = new JSONObject(responseBody);
+            JSONArray crewArray = jsonResponse.getJSONArray("crew");
+
+            for (int i = 0; i < crewArray.length(); i++) {
+                JSONObject crewMember = crewArray.getJSONObject(i);
+                if (crewMember.getString("job").equals("Director")) {
+                    return crewMember.getString("name");
+                }
+            }
+        } catch (IOException e) {
+            // Tratamento de exceções de IO
+            System.err.println("Erro de IO ao buscar diretor: " + e.getMessage());
+            return null; // Retorna null em caso de exceção
+        }
+
+        return null; // Retorna null se nenhum diretor for encontrado
+    }
+
+    private String fetchMainActors(long movieId) {
+        StringBuilder mainActors = new StringBuilder();
+        String url = baseUrl + "/" + movieId + "/credits";
+        Request request = new Request.Builder().url(url).build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                // Log do erro e continuação da execução
+                System.err.println("Erro ao buscar atores principais para o filme ID " + movieId + ": " + response);
+                return "Informação indisponível";
+            }
+
+            String responseBody = response.body().string();
+            JSONObject jsonResponse = new JSONObject(responseBody);
+            JSONArray castArray = jsonResponse.getJSONArray("cast");
+
+            for (int i = 0; i < castArray.length() && i < 5; i++) { // Limita a 5 atores principais
+                JSONObject castMember = castArray.getJSONObject(i);
+                if (i > 0)
+                    mainActors.append(", ");
+                mainActors.append(castMember.getString("name"));
+            }
+        } catch (IOException e) {
+            // Tratamento de exceções de IO
+            System.err.println("Erro de IO ao buscar atores principais: " + e.getMessage());
+            return "Informação indisponível";
+        }
+
+        return mainActors.toString();
+    }
+
+    private String fetchGenres(long movieId) {
+        String url = baseUrl + "/" + movieId;
+        Request request = new Request.Builder().url(url).build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                // Log do erro e continuação da execução
+                System.err.println("Erro ao buscar gêneros para o filme ID " + movieId + ": " + response);
+                return null; // Retorna null se a requisição não for bem-sucedida
+            }
+
+            String responseBody = response.body().string();
+            JSONObject jsonResponse = new JSONObject(responseBody);
+            JSONArray genresArray = jsonResponse.getJSONArray("genres");
+            StringBuilder genres = new StringBuilder();
+
+            for (int i = 0; i < genresArray.length(); i++) {
+                JSONObject genre = genresArray.getJSONObject(i);
+                if (i > 0)
+                    genres.append(", ");
+                genres.append(genre.getString("name"));
+            }
+
+            return genres.toString();
+        } catch (IOException e) {
+            // Tratamento de exceções de IO
+            System.err.println("Erro de IO ao buscar gêneros: " + e.getMessage());
+            return null; // Retorna null em caso de exceção
+        }
+    }
+
+    private String fetchPosterUrl(JSONObject movieJson) {
+        String posterPath = movieJson.optString("poster_path", null);
+        if (posterPath != null) {
+            return "https://image.tmdb.org/t/p/original" + posterPath;
+        }
+        return null;
     }
 }

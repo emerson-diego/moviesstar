@@ -23,6 +23,11 @@ public class Movie {
     @Column(length = 1000) // Ajuste o tamanho conforme necessário
     private String overview;
 
+    private String director;
+    private String mainActors; // Pode ser uma String JSON ou usar uma abordagem diferente
+    private String genreDescription;
+    private String posterUrl;
+
     // Construtores, getters e setters
 
     public Movie() {
@@ -39,6 +44,18 @@ public class Movie {
         this.title = title;
         this.posterPath = posterPath;
         this.overview = overview;
+    }
+
+    public Movie(Long id, String title, String posterPath, String overview, String director, String mainActors,
+            String genreDescription, String posterUrl) {
+        this.id = id;
+        this.title = title;
+        this.posterPath = posterPath;
+        this.overview = overview;
+        this.director = director;
+        this.mainActors = mainActors;
+        this.genreDescription = genreDescription;
+        this.posterUrl = posterUrl;
     }
 
     public Long getId() {
@@ -118,6 +135,38 @@ public class Movie {
                 ", posterPath='" + getPosterPath() + "'" +
                 ", overview='" + getOverview() + "'" +
                 "}";
+    }
+
+    public String getDirector() {
+        return this.director;
+    }
+
+    public void setDirector(String director) {
+        this.director = director;
+    }
+
+    public String getMainActors() {
+        return this.mainActors;
+    }
+
+    public void setMainActors(String mainActors) {
+        this.mainActors = mainActors;
+    }
+
+    public String getGenreDescription() {
+        return this.genreDescription;
+    }
+
+    public void setGenreDescription(String genreDescription) {
+        this.genreDescription = genreDescription;
+    }
+
+    public String getPosterUrl() {
+        return this.posterUrl;
+    }
+
+    public void setPosterUrl(String posterUrl) {
+        this.posterUrl = posterUrl;
     }
 
 }
