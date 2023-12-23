@@ -104,14 +104,13 @@ public class MovieService {
     }
 
     private String fetchDirector(long movieId) {
-        String url = baseUrl + "/" + movieId + "/credits";
+        String url = "https://api.themoviedb.org/3/movie/" + movieId + "/credits?";
         Request request = new Request.Builder().url(url).build();
 
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                // Log do erro e continuação da execução
                 System.err.println("Erro ao buscar diretor para o filme ID " + movieId + ": " + response);
-                return null; // Retorna null se a requisição não for bem-sucedida
+                return null;
             }
 
             String responseBody = response.body().string();
@@ -120,27 +119,25 @@ public class MovieService {
 
             for (int i = 0; i < crewArray.length(); i++) {
                 JSONObject crewMember = crewArray.getJSONObject(i);
-                if (crewMember.getString("job").equals("Director")) {
+                if ("Director".equals(crewMember.getString("job"))) {
                     return crewMember.getString("name");
                 }
             }
         } catch (IOException e) {
-            // Tratamento de exceções de IO
             System.err.println("Erro de IO ao buscar diretor: " + e.getMessage());
-            return null; // Retorna null em caso de exceção
+            return null;
         }
 
-        return null; // Retorna null se nenhum diretor for encontrado
+        return null;
     }
 
     private String fetchMainActors(long movieId) {
         StringBuilder mainActors = new StringBuilder();
-        String url = baseUrl + "/" + movieId + "/credits";
+        String url = "https://api.themoviedb.org/3/movie/" + movieId + "/credits?";
         Request request = new Request.Builder().url(url).build();
 
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                // Log do erro e continuação da execução
                 System.err.println("Erro ao buscar atores principais para o filme ID " + movieId + ": " + response);
                 return "Informação indisponível";
             }
@@ -149,14 +146,13 @@ public class MovieService {
             JSONObject jsonResponse = new JSONObject(responseBody);
             JSONArray castArray = jsonResponse.getJSONArray("cast");
 
-            for (int i = 0; i < castArray.length() && i < 5; i++) { // Limita a 5 atores principais
+            for (int i = 0; i < castArray.length() && i < 5; i++) {
                 JSONObject castMember = castArray.getJSONObject(i);
                 if (i > 0)
                     mainActors.append(", ");
                 mainActors.append(castMember.getString("name"));
             }
         } catch (IOException e) {
-            // Tratamento de exceções de IO
             System.err.println("Erro de IO ao buscar atores principais: " + e.getMessage());
             return "Informação indisponível";
         }
@@ -165,14 +161,13 @@ public class MovieService {
     }
 
     private String fetchGenres(long movieId) {
-        String url = baseUrl + "/" + movieId;
+        String url = "https://api.themoviedb.org/3/movie/" + movieId + "?api_key=YOUR_API_KEY";
         Request request = new Request.Builder().url(url).build();
 
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
-                // Log do erro e continuação da execução
                 System.err.println("Erro ao buscar gêneros para o filme ID " + movieId + ": " + response);
-                return null; // Retorna null se a requisição não for bem-sucedida
+                return null;
             }
 
             String responseBody = response.body().string();
@@ -189,9 +184,8 @@ public class MovieService {
 
             return genres.toString();
         } catch (IOException e) {
-            // Tratamento de exceções de IO
             System.err.println("Erro de IO ao buscar gêneros: " + e.getMessage());
-            return null; // Retorna null em caso de exceção
+            return null;
         }
     }
 
