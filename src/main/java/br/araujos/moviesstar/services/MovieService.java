@@ -55,18 +55,7 @@ public class MovieService {
                     JSONObject movieJson = moviesArray.getJSONObject(i);
                     long movieId = movieJson.getLong("id");
 
-                    MovieDTO movie = new MovieDTO(
-                            movieJson.getLong("id"),
-                            movieJson.getString("title"),
-                            movieJson.optString("poster_path", null),
-                            movieJson.optString("overview", null));
-
-                    // Definindo propriedades que podem ser null
-                    movie.setDirector(fetchDirector(movieId)); // Pode retornar null
-                    movie.setMainActors(fetchMainActors(movieId)); // Pode retornar null
-                    movie.setGenreDescription(fetchGenres(movieId)); // Pode retornar null
-                    movie.setPosterUrl(fetchPosterUrl(movieJson)); // Pode retornar null
-
+                    MovieDTO movie = fetchMovieDetails(movieId, movieJson);
                     allMovies.add(movie);
                 }
 
@@ -98,102 +87,148 @@ public class MovieService {
             movie.setMainActors(dto.getMainActors()); // Pode ser null
             movie.setGenreDescription(dto.getGenreDescription()); // Pode ser null
             movie.setPosterUrl(dto.getPosterUrl()); // Pode ser null
+            movie.setReleaseDate(dto.getReleaseDate());
+            movie.setNationality(dto.getNationality());
+            movie.setTrailerUrl(dto.getTrailerUrl());
+            movie.setImdbRating(dto.getImdbRating());
+            movie.setBraziliamTitle(dto.getBraziliamTitle());
 
             movieRepository.save(movie); // Salva o filme no banco de dados
         }
     }
 
-    private String fetchDirector(long movieId) {
-        String url = "https://api.themoviedb.org/3/movie/" + movieId + "/credits?";
-        Request request = new Request.Builder().url(url).build();
+    private MovieDTO fetchMovieDetails(long movieId, JSONObject movieJson) throws IOException {
+        String detailsUrl = "https://api.themoviedb.org/3/movie/" + movieId
+                + "?append_to_response=credits,videos,translations";
+        Request detailsRequest = new Request.Builder().url(detailsUrl).build();
 
-        try (Response response = client.newCall(request).execute()) {
+        try (Response response = client.newCall(detailsRequest).execute()) {
             if (!response.isSuccessful()) {
-                System.err.println("Erro ao buscar diretor para o filme ID " + movieId + ": " + response);
+                System.err.println("Erro ao buscar detalhes do filme ID " + movieId + ": " + response);
                 return null;
             }
 
             String responseBody = response.body().string();
             JSONObject jsonResponse = new JSONObject(responseBody);
-            JSONArray crewArray = jsonResponse.getJSONArray("crew");
 
-            for (int i = 0; i < crewArray.length(); i++) {
-                JSONObject crewMember = crewArray.getJSONObject(i);
-                if ("Director".equals(crewMember.getString("job"))) {
-                    return crewMember.getString("name");
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("Erro de IO ao buscar diretor: " + e.getMessage());
-            return null;
+            // Extração do nome oficial do filme
+            String officialTitle = jsonResponse.getString("title");
+
+            // Extração do nome em português brasileiro
+            String brazilianTitle = extractBrazilianTitle(jsonResponse);
+
+            // Extração da data de lançamento
+            String releaseDate = jsonResponse.optString("release_date", null);
+
+            // Extração da sinopse
+            String overview = jsonResponse.optString("overview", null);
+
+            // Extração da nota do IMDb (se disponível diretamente)
+            String imdbRating = extractImdbRating(jsonResponse);
+
+            // Extração de outras informações...
+            String director = extractDirector(jsonResponse);
+            String mainActors = extractMainActors(jsonResponse);
+            String genres = extractGenres(jsonResponse);
+            String trailerUrl = extractTrailerUrl(jsonResponse);
+            String nationality = extractNationality(jsonResponse);
+
+            // Extração do caminho do poster
+            String posterPath = movieJson.optString("poster_path", null);
+
+            // Construção do URL completo do poster
+            String posterUrl = posterPath != null ? "https://image.tmdb.org/t/p/original" + posterPath : null;
+
+            // Construção e retorno do MovieDTO
+            return new MovieDTO(
+                    movieId,
+                    officialTitle,
+                    posterPath,
+                    overview,
+                    director,
+                    mainActors,
+                    genres,
+                    posterUrl,
+                    nationality,
+                    trailerUrl,
+                    imdbRating,
+                    releaseDate,
+                    brazilianTitle
+
+            );
         }
-
-        return null;
     }
 
-    private String fetchMainActors(long movieId) {
-        StringBuilder mainActors = new StringBuilder();
-        String url = "https://api.themoviedb.org/3/movie/" + movieId + "/credits?";
-        Request request = new Request.Builder().url(url).build();
-
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                System.err.println("Erro ao buscar atores principais para o filme ID " + movieId + ": " + response);
-                return "Informação indisponível";
-            }
-
-            String responseBody = response.body().string();
-            JSONObject jsonResponse = new JSONObject(responseBody);
-            JSONArray castArray = jsonResponse.getJSONArray("cast");
-
-            for (int i = 0; i < castArray.length() && i < 5; i++) {
-                JSONObject castMember = castArray.getJSONObject(i);
-                if (i > 0)
-                    mainActors.append(", ");
-                mainActors.append(castMember.getString("name"));
-            }
-        } catch (IOException e) {
-            System.err.println("Erro de IO ao buscar atores principais: " + e.getMessage());
-            return "Informação indisponível";
+    private String extractGenres(JSONObject jsonResponse) {
+        StringBuilder genres = new StringBuilder();
+        JSONArray genresArray = jsonResponse.getJSONArray("genres");
+        for (int i = 0; i < genresArray.length(); i++) {
+            if (i > 0)
+                genres.append(", ");
+            genres.append(genresArray.getJSONObject(i).getString("name"));
         }
+        return genres.toString();
+    }
 
+    private String extractMainActors(JSONObject jsonResponse) {
+        StringBuilder mainActors = new StringBuilder();
+        JSONArray castArray = jsonResponse.getJSONObject("credits").getJSONArray("cast");
+        for (int i = 0; i < castArray.length() && i < 5; i++) {
+            if (i > 0)
+                mainActors.append(", ");
+            mainActors.append(castArray.getJSONObject(i).getString("name"));
+        }
         return mainActors.toString();
     }
 
-    private String fetchGenres(long movieId) {
-        String url = "https://api.themoviedb.org/3/movie/" + movieId + "?api_key=YOUR_API_KEY";
-        Request request = new Request.Builder().url(url).build();
-
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                System.err.println("Erro ao buscar gêneros para o filme ID " + movieId + ": " + response);
-                return null;
+    private String extractDirector(JSONObject jsonResponse) {
+        JSONArray crewArray = jsonResponse.getJSONObject("credits").getJSONArray("crew");
+        for (int i = 0; i < crewArray.length(); i++) {
+            JSONObject crewMember = crewArray.getJSONObject(i);
+            if ("Director".equals(crewMember.getString("job"))) {
+                return crewMember.getString("name");
             }
-
-            String responseBody = response.body().string();
-            JSONObject jsonResponse = new JSONObject(responseBody);
-            JSONArray genresArray = jsonResponse.getJSONArray("genres");
-            StringBuilder genres = new StringBuilder();
-
-            for (int i = 0; i < genresArray.length(); i++) {
-                JSONObject genre = genresArray.getJSONObject(i);
-                if (i > 0)
-                    genres.append(", ");
-                genres.append(genre.getString("name"));
-            }
-
-            return genres.toString();
-        } catch (IOException e) {
-            System.err.println("Erro de IO ao buscar gêneros: " + e.getMessage());
-            return null;
-        }
-    }
-
-    private String fetchPosterUrl(JSONObject movieJson) {
-        String posterPath = movieJson.optString("poster_path", null);
-        if (posterPath != null) {
-            return "https://image.tmdb.org/t/p/original" + posterPath;
         }
         return null;
     }
+
+    private String extractTrailerUrl(JSONObject jsonResponse) {
+        JSONArray videoResults = jsonResponse.getJSONObject("videos").getJSONArray("results");
+        for (int i = 0; i < videoResults.length(); i++) {
+            JSONObject video = videoResults.getJSONObject(i);
+            if ("Trailer".equals(video.getString("type"))) {
+                return "https://www.youtube.com/watch?v=" + video.getString("key");
+            }
+        }
+        return null;
+    }
+
+    private String extractBrazilianTitle(JSONObject jsonResponse) {
+        JSONArray translations = jsonResponse.getJSONObject("translations").getJSONArray("translations");
+        for (int i = 0; i < translations.length(); i++) {
+            JSONObject translation = translations.getJSONObject(i);
+            String language = translation.getString("iso_639_1");
+            String country = translation.getString("iso_3166_1");
+            if ("pt".equals(language) && "BR".equals(country)) {
+                return translation.getJSONObject("data").getString("title");
+            }
+        }
+        return null;
+    }
+
+    private String extractNationality(JSONObject jsonResponse) {
+        JSONArray productionCountries = jsonResponse.getJSONArray("production_countries");
+        if (productionCountries.length() > 0) {
+            return productionCountries.getJSONObject(0).getString("name");
+        }
+        return null;
+    }
+
+    private String extractImdbRating(JSONObject jsonResponse) {
+        // Implementação depende da disponibilidade dessa informação na API do TMDb
+        // Se não estiver disponível, você precisará de uma chamada adicional a outra
+        // API
+        return jsonResponse.optString("vote_average", null);
+    }
+
 }

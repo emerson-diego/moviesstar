@@ -28,6 +28,13 @@ public class Movie {
     private String genreDescription;
     private String posterUrl;
 
+    private String nationality;
+    private String trailerUrl;
+    private String imdbRating;
+    private String releaseDate;
+
+    private String braziliamTitle;
+
     // Construtores, getters e setters
 
     public Movie() {
@@ -56,6 +63,41 @@ public class Movie {
         this.mainActors = mainActors;
         this.genreDescription = genreDescription;
         this.posterUrl = posterUrl;
+    }
+
+    public Movie(Long id, String title, String posterPath, String overview, String director, String mainActors,
+            String genreDescription, String posterUrl, String nationality, String trailerUrl, String imdbRating,
+            String releaseDate) {
+        this.id = id;
+        this.title = title;
+        this.posterPath = posterPath;
+        this.overview = overview;
+        this.director = director;
+        this.mainActors = mainActors;
+        this.genreDescription = genreDescription;
+        this.posterUrl = posterUrl;
+        this.nationality = nationality;
+        this.trailerUrl = trailerUrl;
+        this.imdbRating = imdbRating;
+        this.releaseDate = releaseDate;
+    }
+
+    public Movie(Long id, String title, String posterPath, String overview, String director, String mainActors,
+            String genreDescription, String posterUrl, String nationality, String trailerUrl, String imdbRating,
+            String releaseDate, String braziliamTitle) {
+        this.id = id;
+        this.title = title;
+        this.posterPath = posterPath;
+        this.overview = overview;
+        this.director = director;
+        this.mainActors = mainActors;
+        this.genreDescription = genreDescription;
+        this.posterUrl = posterUrl;
+        this.nationality = nationality;
+        this.trailerUrl = trailerUrl;
+        this.imdbRating = imdbRating;
+        this.releaseDate = releaseDate;
+        this.braziliamTitle = braziliamTitle;
     }
 
     public Long getId() {
@@ -167,6 +209,46 @@ public class Movie {
 
     public void setPosterUrl(String posterUrl) {
         this.posterUrl = posterUrl;
+    }
+
+    public String getNationality() {
+        return this.nationality;
+    }
+
+    public void setNationality(String nationality) {
+        this.nationality = nationality;
+    }
+
+    public String getTrailerUrl() {
+        return this.trailerUrl;
+    }
+
+    public void setTrailerUrl(String trailerUrl) {
+        this.trailerUrl = trailerUrl;
+    }
+
+    public String getImdbRating() {
+        return this.imdbRating;
+    }
+
+    public void setImdbRating(String imdbRating) {
+        this.imdbRating = imdbRating;
+    }
+
+    public String getReleaseDate() {
+        return this.releaseDate;
+    }
+
+    public void setReleaseDate(String releaseDate) {
+        this.releaseDate = releaseDate;
+    }
+
+    public String getBraziliamTitle() {
+        return this.braziliamTitle;
+    }
+
+    public void setBraziliamTitle(String braziliamTitle) {
+        this.braziliamTitle = braziliamTitle;
     }
 
 }
