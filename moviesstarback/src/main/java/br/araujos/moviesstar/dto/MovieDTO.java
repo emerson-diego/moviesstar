@@ -1,4 +1,4 @@
-package br.araujos.dto;
+package br.araujos.moviesstar.dto;
 
 import java.util.Objects;
 

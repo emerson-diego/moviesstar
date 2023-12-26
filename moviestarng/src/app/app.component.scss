@@ -1,0 +1,37 @@
+app-header {
+  width: 100%;
+  height: 60px; /* Altura do cabeçalho */
+  /* Adicione outros estilos para o cabeçalho conforme necessário */
+}
+
+.content {
+  display: flex;
+  justify-content: space-between; /* Espaçamento entre os componentes principais e a barra lateral */
+  height: calc(100vh - 60px); /* Altura total menos a altura do cabeçalho */
+}
+
+.main {
+  display: flex;
+  justify-content: center; /* Centraliza os componentes principais horizontalmente */
+  align-items: center; /* Centraliza os componentes principais verticalmente */
+  flex-grow: 1; /* Ocupa o espaço restante exceto a barra lateral */
+}
+
+app-main-component {
+  flex-basis: 30%; /* Cada componente principal ocupa 30% da largura da página */
+  /* Adicione outros estilos conforme necessário */
+}
+
+.sidebar {
+  width: calc(40% - 10px); /* Largura restante menos um gap */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* Alinha a barra lateral à direita */
+  height: 100%;
+}
+
+app-side-component {
+  width: 100%; /* Ocupa toda a largura da barra lateral */
+  height: 100%; /* Ocupa toda a altura da barra lateral */
+  /* Adicione outros estilos conforme necessário */
+}

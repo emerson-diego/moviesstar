@@ -8,7 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
-import br.araujos.dto.MovieDTO;
+import br.araujos.moviesstar.dto.MovieDTO;
 import br.araujos.moviesstar.entity.Movie;
 import br.araujos.moviesstar.infraestrutura.ApiKeyInterceptor;
 import br.araujos.moviesstar.repository.MovieRepository;
@@ -94,6 +94,42 @@ public class MovieService {
             movie.setBraziliamTitle(dto.getBraziliamTitle());
 
             movieRepository.save(movie); // Salva o filme no banco de dados
+        }
+    }
+
+    public MovieDTO fetchMovieById(long movieId) throws IOException {
+        String url = "https://api.themoviedb.org/3/movie/" + movieId
+                + "?append_to_response=credits,videos,translations";
+        Request request = new Request.Builder().url(url).build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                System.err.println("Erro ao buscar detalhes do filme ID " + movieId + ": " + response);
+                return null;
+            }
+
+            String responseBody = response.body().string();
+            JSONObject jsonResponse = new JSONObject(responseBody);
+
+            String title = jsonResponse.optString("title");
+            String overview = jsonResponse.optString("overview");
+            String releaseDate = jsonResponse.optString("release_date");
+            String imdbRating = extractImdbRating(jsonResponse); // Implementação depende da estrutura da resposta
+
+            String posterPath = jsonResponse.optString("poster_path");
+            String posterUrl = posterPath != null ? "https://image.tmdb.org/t/p/original" + posterPath : null;
+
+            String director = extractDirector(jsonResponse);
+            String mainActors = extractMainActors(jsonResponse);
+            String genreDescription = extractGenres(jsonResponse);
+            String trailerUrl = extractTrailerUrl(jsonResponse);
+            String nationality = extractNationality(jsonResponse);
+            String braziliamTitle = extractBrazilianTitle(jsonResponse);
+
+            return new MovieDTO(
+                    movieId, title, posterPath, overview, director, mainActors,
+                    genreDescription, posterUrl, nationality, trailerUrl,
+                    imdbRating, releaseDate, braziliamTitle);
         }
     }
 
