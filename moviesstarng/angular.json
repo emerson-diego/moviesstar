@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "moviestarng": {
+    "moviesstarng": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/moviestarng",
+            "outputPath": "dist/moviesstarng",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -62,10 +62,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "moviestarng:build:production"
+              "buildTarget": "moviesstarng:build:production"
             },
             "development": {
-              "buildTarget": "moviestarng:build:development"
+              "buildTarget": "moviesstarng:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -73,7 +73,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "moviestarng:build"
+            "buildTarget": "moviesstarng:build"
           }
         },
         "test": {

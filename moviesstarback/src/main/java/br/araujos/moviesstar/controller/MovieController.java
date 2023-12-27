@@ -8,12 +8,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.araujos.moviesstar.dto.MovieDTO;
 import br.araujos.moviesstar.services.MovieService;
 
 @RestController
+@RequestMapping("/movies")
 public class MovieController {
 
     private final MovieService movieService;
@@ -22,7 +24,7 @@ public class MovieController {
         this.movieService = movieService;
     }
 
-    @GetMapping("/movies")
+    @GetMapping("/")
     public ResponseEntity<?> getAllMovies() {
 
         List<MovieDTO> movies = movieService.fetchAllMovies();

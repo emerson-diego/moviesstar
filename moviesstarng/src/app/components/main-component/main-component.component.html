@@ -1,0 +1,22 @@
+<p>main-component works!</p>
+
+@if (movie) {
+<h2>{{ movie.title }}</h2>
+<p>{{ movie.overview }}</p>
+<img [src]="movie.posterUrl" alt="Movie Poster" class="movie-poster" />
+<p><strong>Director:</strong> {{ movie.director }}</p>
+<p><strong>Main Actors:</strong> {{ movie.mainActors }}</p>
+<p><strong>Genre:</strong> {{ movie.genreDescription }}</p>
+<p><strong>Nationality:</strong> {{ movie.nationality }}</p>
+<p><strong>IMDB Rating:</strong> {{ movie.imdbRating }}</p>
+<p><strong>Release Date:</strong> {{ movie.releaseDate }}</p>
+<p><strong>Brazilian Title:</strong> {{ movie.braziliamTitle }}</p>
+<iframe
+  *ngIf="movie?.trailerUrl"
+  width="400"
+  height="315"
+  [src]="getSafeYoutubeUrl(movie.trailerUrl)"
+  frameborder="0"
+  allowfullscreen
+></iframe>
+}

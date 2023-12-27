@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { HttpClientModule } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './components/header/header.component';
@@ -11,6 +12,7 @@ import { SideComponent } from './components/side-component/side-component.compon
   imports: [
     CommonModule,
     RouterOutlet,
+    HttpClientModule,
     HeaderComponent,
     MainComponent,
     SideComponent,
@@ -19,5 +21,5 @@ import { SideComponent } from './components/side-component/side-component.compon
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
-  title = 'moviestarng';
+  title = 'moviesstarng';
 }
