@@ -1,24 +1,32 @@
 package br.araujos.moviesstar.batch;
 
+import java.util.Iterator;
+
 import org.springframework.batch.item.ItemReader;
 
-public class CustomReader implements ItemReader<String> {
+import br.araujos.moviesstar.dto.MovieDTO;
+import br.araujos.moviesstar.services.MovieService;
 
-    private String[] tokens = { "Java", "Spring", "SpringBoot", "Hibernate", "SpringBootBatch", "Advanced Java" };
+public class CustomReader implements ItemReader<MovieDTO> {
 
-    private int index = 0;
+    private Iterator<MovieDTO> movieIterator;
+
+    private final MovieService movieService;
+
+    public CustomReader(MovieService movieService) {
+        this.movieService = movieService;
+        movieIterator = movieService.fetchAllMovies().iterator();
+    }
 
     @Override
-    public String read() throws Exception {
-        if (index >= tokens.length) {
-            return null;
+    public MovieDTO read() throws Exception {
+        if (movieIterator.hasNext()) {
+            MovieDTO movie = movieIterator.next();
+            System.out.println("Movie: " + movie.getTitle());
+            return movie;
+        } else {
+            return null; // Retorna null para indicar que não há mais dados a serem lidos
         }
-
-        String data = index + " " + tokens[index];
-        index++;
-
-        System.out.println("Reading data - " + data);
-        return data;
     }
 
 }

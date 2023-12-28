@@ -51,17 +51,17 @@ public class MovieService {
                 JSONObject jsonResponse = new JSONObject(responseBody);
                 JSONArray moviesArray = jsonResponse.getJSONArray("results");
 
-                double popularityThreshold = 1000.0; // Defina um limiar realista aqui
+                // double popularityThreshold = 1000.0; // Defina um limiar realista aqui
 
                 for (int i = 0; i < moviesArray.length(); i++) {
                     JSONObject movieJson = moviesArray.getJSONObject(i);
-                    double popularity = movieJson.optDouble("popularity", 0.0);
+                    // double popularity = movieJson.optDouble("popularity", 0.0);
 
-                    if (popularity > popularityThreshold) {
-                        long movieId = movieJson.getLong("id");
-                        MovieDTO movie = fetchMovieDetails(movieId, movieJson);
-                        allMovies.add(movie);
-                    }
+                    // if (popularity > popularityThreshold) {
+                    long movieId = movieJson.getLong("id");
+                    MovieDTO movie = fetchMovieDetails(movieId, movieJson);
+                    allMovies.add(movie);
+                    // }
                 }
 
                 int totalPages = jsonResponse.getInt("total_pages");
@@ -137,6 +137,19 @@ public class MovieService {
                     genreDescription, posterUrl, nationality, trailerUrl,
                     imdbRating, releaseDate, braziliamTitle);
         }
+    }
+
+    public void saveOrUpdateMovie(MovieDTO movieDTO) {
+        // Busca um filme existente pelo ID
+        Movie movie = movieRepository.findById(movieDTO.getId())
+                .orElse(new Movie()); // Cria um novo filme se não existir
+
+        // Atualiza as informações do filme com os dados do DTO
+        updateMovieFromDTO(movie, movieDTO);
+
+        // Salva o filme no banco de dados (atualiza se já existir ou cria um novo se
+        // não existir)
+        movieRepository.save(movie);
     }
 
     private MovieDTO fetchMovieDetails(long movieId, JSONObject movieJson) throws IOException {
@@ -273,6 +286,27 @@ public class MovieService {
         // Se não estiver disponível, você precisará de uma chamada adicional a outra
         // API
         return jsonResponse.optString("vote_average", null);
+    }
+
+    private void updateMovieFromDTO(Movie movie, MovieDTO dto) {
+        movie.setTitle(dto.getTitle());
+        movie.setPosterPath(dto.getPosterPath());
+        movie.setOverview(dto.getOverview());
+        movie.setDirector(dto.getDirector()); // Pode ser null
+        movie.setMainActors(dto.getMainActors()); // Pode ser null
+        movie.setGenreDescription(dto.getGenreDescription()); // Pode ser null
+        movie.setPosterUrl(dto.getPosterUrl()); // Pode ser null
+        movie.setReleaseDate(dto.getReleaseDate());
+        movie.setNationality(dto.getNationality());
+        movie.setTrailerUrl(dto.getTrailerUrl());
+        movie.setImdbRating(dto.getImdbRating());
+        movie.setBraziliamTitle(dto.getBraziliamTitle());
+        movie.setPopularity(dto.getPopularity());
+
+        // Se o DTO contém um ID, defina-o na entidade
+        if (dto.getId() != null) {
+            movie.setId(dto.getId());
+        }
     }
 
 }
