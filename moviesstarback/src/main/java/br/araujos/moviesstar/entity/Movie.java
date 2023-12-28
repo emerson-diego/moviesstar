@@ -35,6 +35,8 @@ public class Movie {
 
     private String braziliamTitle;
 
+    private String popularity;
+
     // Construtores, getters e setters
 
     public Movie() {
@@ -98,6 +100,33 @@ public class Movie {
         this.imdbRating = imdbRating;
         this.releaseDate = releaseDate;
         this.braziliamTitle = braziliamTitle;
+    }
+
+    public Movie(Long id, String title, String posterPath, String overview, String director, String mainActors,
+            String genreDescription, String posterUrl, String nationality, String trailerUrl, String imdbRating,
+            String releaseDate, String braziliamTitle, String popularity) {
+        this.id = id;
+        this.title = title;
+        this.posterPath = posterPath;
+        this.overview = overview;
+        this.director = director;
+        this.mainActors = mainActors;
+        this.genreDescription = genreDescription;
+        this.posterUrl = posterUrl;
+        this.nationality = nationality;
+        this.trailerUrl = trailerUrl;
+        this.imdbRating = imdbRating;
+        this.releaseDate = releaseDate;
+        this.braziliamTitle = braziliamTitle;
+        this.popularity = popularity;
+    }
+
+    public String getPopularity() {
+        return this.popularity;
+    }
+
+    public void setPopularity(String popularity) {
+        this.popularity = popularity;
     }
 
     public Long getId() {

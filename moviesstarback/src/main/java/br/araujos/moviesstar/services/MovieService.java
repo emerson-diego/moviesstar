@@ -51,12 +51,17 @@ public class MovieService {
                 JSONObject jsonResponse = new JSONObject(responseBody);
                 JSONArray moviesArray = jsonResponse.getJSONArray("results");
 
+                double popularityThreshold = 1000.0; // Defina um limiar realista aqui
+
                 for (int i = 0; i < moviesArray.length(); i++) {
                     JSONObject movieJson = moviesArray.getJSONObject(i);
-                    long movieId = movieJson.getLong("id");
+                    double popularity = movieJson.optDouble("popularity", 0.0);
 
-                    MovieDTO movie = fetchMovieDetails(movieId, movieJson);
-                    allMovies.add(movie);
+                    if (popularity > popularityThreshold) {
+                        long movieId = movieJson.getLong("id");
+                        MovieDTO movie = fetchMovieDetails(movieId, movieJson);
+                        allMovies.add(movie);
+                    }
                 }
 
                 int totalPages = jsonResponse.getInt("total_pages");
@@ -79,7 +84,7 @@ public class MovieService {
                     .orElse(new Movie()); // Cria um novo filme se não existir
 
             // Atualiza as informações do filme com os dados do DTO
-            movie.setId(dto.getId());
+            // movie.setId(dto.getId());
             movie.setTitle(dto.getTitle());
             movie.setPosterPath(dto.getPosterPath());
             movie.setOverview(dto.getOverview());
@@ -92,6 +97,7 @@ public class MovieService {
             movie.setTrailerUrl(dto.getTrailerUrl());
             movie.setImdbRating(dto.getImdbRating());
             movie.setBraziliamTitle(dto.getBraziliamTitle());
+            movie.setPopularity(dto.getPopularity());
 
             movieRepository.save(movie); // Salva o filme no banco de dados
         }
@@ -175,6 +181,7 @@ public class MovieService {
             // Construção do URL completo do poster
             String posterUrl = posterPath != null ? "https://image.tmdb.org/t/p/original" + posterPath : null;
 
+            String popularity = movieJson.optString("popularity", "0.0");
             // Construção e retorno do MovieDTO
             return new MovieDTO(
                     movieId,
@@ -189,7 +196,8 @@ public class MovieService {
                     trailerUrl,
                     imdbRating,
                     releaseDate,
-                    brazilianTitle
+                    brazilianTitle,
+                    popularity
 
             );
         }

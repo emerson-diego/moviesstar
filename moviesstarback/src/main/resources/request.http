@@ -1,5 +1,5 @@
 ### Requisição 1
-POST http://localhost:8083/savemovies
+POST http://localhost:8083/movies/savemovies
 Content-Type: application/json
 
 ### Requisição 2
