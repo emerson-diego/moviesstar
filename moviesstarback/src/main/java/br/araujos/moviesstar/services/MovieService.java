@@ -117,9 +117,10 @@ public class MovieService {
             String responseBody = response.body().string();
             JSONObject jsonResponse = new JSONObject(responseBody);
 
-            String title = jsonResponse.optString("title");
+            String officialTitle = jsonResponse.optString("title");
             String overview = jsonResponse.optString("overview");
             String releaseDate = jsonResponse.optString("release_date");
+            String popularity = jsonResponse.optString("popularity", "0.0");
             String imdbRating = extractImdbRating(jsonResponse); // Implementação depende da estrutura da resposta
 
             String posterPath = jsonResponse.optString("poster_path");
@@ -133,9 +134,9 @@ public class MovieService {
             String braziliamTitle = extractBrazilianTitle(jsonResponse);
 
             return new MovieDTO(
-                    movieId, title, posterPath, overview, director, mainActors,
+                    movieId, officialTitle, posterPath, overview, director, mainActors,
                     genreDescription, posterUrl, nationality, trailerUrl,
-                    imdbRating, releaseDate, braziliamTitle);
+                    imdbRating, releaseDate, braziliamTitle, popularity);
         }
     }
 
@@ -184,7 +185,7 @@ public class MovieService {
             // Extração de outras informações...
             String director = extractDirector(jsonResponse);
             String mainActors = extractMainActors(jsonResponse);
-            String genres = extractGenres(jsonResponse);
+            String genreDescription = extractGenres(jsonResponse);
             String trailerUrl = extractTrailerUrl(jsonResponse);
             String nationality = extractNationality(jsonResponse);
 
@@ -203,7 +204,7 @@ public class MovieService {
                     overview,
                     director,
                     mainActors,
-                    genres,
+                    genreDescription,
                     posterUrl,
                     nationality,
                     trailerUrl,
@@ -213,6 +214,7 @@ public class MovieService {
                     popularity
 
             );
+
         }
     }
 
