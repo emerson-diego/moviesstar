@@ -2,7 +2,7 @@
   @if (movie) {
   <h2>{{ movie.braziliamTitle ? movie.braziliamTitle : movie.title }}</h2>
 
-  <div (click)="toggleWatchedStatus(movie)">
+  <div (click)="toggleWatchedStatus($event, movie)">
     <span *ngIf="!movie.watched" class="not-watched-icon">□</span>
     <span *ngIf="movie.watched" class="watched-icon">■</span>
     <span class="movie-status">{{

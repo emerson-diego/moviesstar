@@ -17,6 +17,7 @@ import br.araujos.moviesstar.entity.Movie;
 import br.araujos.moviesstar.exceptions.MovieNotFoundException;
 import br.araujos.moviesstar.infraestrutura.ApiKeyInterceptor;
 import br.araujos.moviesstar.repository.MovieRepository;
+import jakarta.persistence.EntityNotFoundException;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -117,6 +118,27 @@ public class MovieService {
                 .map(this::convertToMovieDTO)
                 .findFirst()
                 .orElse(null); // Retorna null se nenhum filme for encontrado
+    }
+
+    public void updateMovieScores(Long winnerId, Long loserId) {
+        Movie winner = movieRepository.findById(winnerId)
+                .orElseThrow(() -> new EntityNotFoundException("Filme vencedor não encontrado"));
+        Movie loser = movieRepository.findById(loserId)
+                .orElseThrow(() -> new EntityNotFoundException("Filme perdedor não encontrado"));
+
+        int winnerScore = winner.getScore();
+        int loserScore = loser.getScore();
+
+        double winnerExpected = calculateExpectedScore(winnerScore, loserScore);
+        double loserExpected = calculateExpectedScore(loserScore, winnerScore);
+
+        int K = 30; // Fator de ajuste, pode variar dependendo do nível dos competidores
+
+        winner.setScore(winnerScore + (int) (K * (1 - winnerExpected)));
+        loser.setScore(loserScore + (int) (K * (0 - loserExpected)));
+
+        movieRepository.save(winner);
+        movieRepository.save(loser);
     }
 
     private List<MovieDTO> fetchMoviesFromApi(int page) {
@@ -304,6 +326,10 @@ public class MovieService {
         if (dto.getId() != null) {
             movie.setId(dto.getId());
         }
+    }
+
+    private double calculateExpectedScore(int scoreA, int scoreB) {
+        return 1.0 / (1.0 + Math.pow(10, (scoreB - scoreA) / 400.0));
     }
 
 }

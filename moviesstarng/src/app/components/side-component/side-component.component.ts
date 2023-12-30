@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { catchError, of } from 'rxjs';
+import { DuelResultService } from '../../services/duel.service';
 import { MovieService } from '../../services/movie.service';
 import { MovieDTO } from '../types';
 
@@ -10,14 +11,27 @@ import { MovieDTO } from '../types';
   imports: [CommonModule],
   templateUrl: './side-component.component.html',
   styleUrl: './side-component.component.scss',
-  providers: [MovieService],
+  providers: [MovieService, DuelResultService],
 })
 export class SideComponent implements OnInit {
   topMovies: MovieDTO[] = [];
 
-  constructor(private movieService: MovieService) {}
+  constructor(
+    private movieService: MovieService,
+    private duelResultService: DuelResultService
+  ) {}
 
-  ngOnInit(): void {
+  ngOnInit() {
+    // Carregue os filmes na inicialização
+    this.loadTopMovies();
+
+    // Ouça o evento de resultado do duelo e recarregue os filmes quando ele ocorrer
+    this.duelResultService.duelResult$.subscribe(() => {
+      this.loadTopMovies();
+    });
+  }
+
+  loadTopMovies() {
     this.movieService
       .getTop25Movies()
       .pipe(

@@ -36,4 +36,14 @@ export class MovieService {
   getRandomMovie(): Observable<MovieDTO> {
     return this.http.get<MovieDTO>(`${this.baseUrl}/random`);
   }
+
+  submitDuelResult(winnerId: number, loserId: number): Observable<any> {
+    // Crie um objeto HttpParams para incluir os parâmetros na URL
+    const params = new HttpParams()
+      .set('winnerId', winnerId.toString())
+      .set('loserId', loserId.toString());
+
+    // Faça a solicitação HTTP usando os parâmetros de consulta
+    return this.http.post(`${this.baseUrl}/duel`, null, { params });
+  }
 }

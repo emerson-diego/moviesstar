@@ -1,0 +1,21 @@
+<div *ngIf="movie1 && movie2" class="duel-container">
+  <app-main-component
+    *ngIf="movie1 && movie2"
+    [movie]="movie1"
+    (click)="onDuelResult(movie1!, movie2!)"
+    [class.highlighted]="highlightedMovie1"
+    (mouseenter)="highlightedMovie1 = true"
+    (mouseleave)="highlightedMovie1 = false"
+    (filmeAtualizado)="loadRandomMovies()"
+  ></app-main-component>
+  <div class="vs">VS</div>
+  <app-main-component
+    *ngIf="movie1 && movie2"
+    [movie]="movie2"
+    (click)="onDuelResult(movie2!, movie1!)"
+    [class.highlighted]="highlightedMovie2"
+    (mouseenter)="highlightedMovie2 = true"
+    (mouseleave)="highlightedMovie2 = false"
+    (filmeAtualizado)="loadRandomMovies()"
+  ></app-main-component>
+</div>
