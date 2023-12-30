@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { of } from 'rxjs';
@@ -16,8 +16,8 @@ import { MovieDTO } from '../types';
   providers: [MovieService],
 })
 export class MainComponent {
-  @Input() movieId!: number;
   movie!: MovieDTO;
+  movies: MovieDTO[] = [];
 
   constructor(
     private movieService: MovieService,
@@ -26,10 +26,17 @@ export class MainComponent {
   ) {}
 
   ngOnInit(): void {
-    this.loadMovieDetails();
+    //this.loadMovieDetails();
+    this.loadRandomMovie();
   }
 
-  loadMovieDetails(): void {
+  loadRandomMovie() {
+    this.movieService.getRandomMovie().subscribe((movie) => {
+      this.movie = movie;
+    });
+  }
+
+  /*loadMovieDetails(): void {
     if (this.movieId) {
       this.movieService
         .getMovieById(this.movieId)
@@ -47,7 +54,7 @@ export class MainComponent {
           }
         });
     }
-  }
+  }*/
 
   getSafeYoutubeUrl(url?: string): SafeResourceUrl {
     if (!url) {

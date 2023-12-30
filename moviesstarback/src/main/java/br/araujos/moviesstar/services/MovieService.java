@@ -112,6 +112,13 @@ public class MovieService {
         );
     }
 
+    public MovieDTO getRandomMovie() {
+        return movieRepository.findRandomMovies(PageRequest.of(0, 1)).stream()
+                .map(this::convertToMovieDTO)
+                .findFirst()
+                .orElse(null); // Retorna null se nenhum filme for encontrado
+    }
+
     private List<MovieDTO> fetchMoviesFromApi(int page) {
         List<MovieDTO> movies = new ArrayList<>();
         String url = BASE_URL + "?page=" + page;

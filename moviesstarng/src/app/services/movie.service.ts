@@ -32,4 +32,8 @@ export class MovieService {
       }
     );
   }
+
+  getRandomMovie(): Observable<MovieDTO> {
+    return this.http.get<MovieDTO>(`${this.baseUrl}/random`);
+  }
 }

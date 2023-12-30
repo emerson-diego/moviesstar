@@ -68,4 +68,14 @@ public class MovieController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping("/random")
+    public ResponseEntity<MovieDTO> getRandomMovie() {
+        MovieDTO movie = movieService.getRandomMovie();
+        if (movie != null) {
+            return ResponseEntity.ok(movie);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
