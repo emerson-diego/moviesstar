@@ -3,6 +3,7 @@ package br.araujos.moviesstar.services;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.json.JSONArray;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import br.araujos.moviesstar.dto.MovieDTO;
 import br.araujos.moviesstar.entity.Movie;
+import br.araujos.moviesstar.exceptions.MovieNotFoundException;
 import br.araujos.moviesstar.infraestrutura.ApiKeyInterceptor;
 import br.araujos.moviesstar.repository.MovieRepository;
 import okhttp3.OkHttpClient;
@@ -43,43 +45,6 @@ public class MovieService {
         return allMovies;
     }
 
-    public MovieDTO fetchMovieById(long movieId) throws IOException {
-        String url = "https://api.themoviedb.org/3/movie/" + movieId
-                + "?append_to_response=credits,videos,translations";
-        Request request = new Request.Builder().url(url).build();
-
-        try (Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                System.err.println("Erro ao buscar detalhes do filme ID " + movieId + ": " + response);
-                return null;
-            }
-
-            String responseBody = response.body().string();
-            JSONObject jsonResponse = new JSONObject(responseBody);
-
-            String officialTitle = jsonResponse.optString("title");
-            String overview = jsonResponse.optString("overview");
-            String releaseDate = jsonResponse.optString("release_date");
-            String popularity = jsonResponse.optString("popularity", "0.0");
-            String imdbRating = extractImdbRating(jsonResponse); // Implementação depende da estrutura da resposta
-
-            String posterPath = jsonResponse.optString("poster_path");
-            String posterUrl = posterPath != null ? "https://image.tmdb.org/t/p/original" + posterPath : null;
-
-            String director = extractDirector(jsonResponse);
-            String mainActors = extractMainActors(jsonResponse);
-            String genreDescription = extractGenres(jsonResponse);
-            String trailerUrl = extractTrailerUrl(jsonResponse);
-            String nationality = extractNationality(jsonResponse);
-            String braziliamTitle = extractBrazilianTitle(jsonResponse);
-
-            return new MovieDTO(
-                    movieId, officialTitle, posterPath, overview, director, mainActors,
-                    genreDescription, posterUrl, nationality, trailerUrl,
-                    imdbRating, releaseDate, braziliamTitle, popularity);
-        }
-    }
-
     public void saveOrUpdateMovie(MovieDTO movieDTO) {
         // Busca um filme existente pelo ID
         Movie movie = movieRepository.findById(movieDTO.getId())
@@ -98,6 +63,53 @@ public class MovieService {
         return movieRepository.findTop25ByOrderByScoreDescImdbRatingDesc(pageable).stream()
                 .map(this::convertToMovieDTO)
                 .collect(Collectors.toList());
+    }
+
+    public Movie markMovieAsWatched(Long movieId, boolean watched) {
+        Optional<Movie> optionalMovie = movieRepository.findById(movieId);
+        if (optionalMovie.isPresent()) {
+            Movie movie = optionalMovie.get();
+            movie.setWatched(watched);
+            return movieRepository.save(movie);
+        } else {
+            throw new MovieNotFoundException("Movie not found with id: " + movieId);
+        }
+    }
+
+    public MovieDTO getMovieById(long id) {
+        Optional<Movie> movieOptional = movieRepository.findById(id);
+
+        if (movieOptional.isPresent()) {
+            Movie movie = movieOptional.get();
+            // Converte o filme do banco de dados em um MovieDTO e retorna
+            return convertToMovieDTO(movie);
+        } else {
+            return null; // Filme não encontrado no banco de dados
+        }
+    }
+
+    public MovieDTO convertToMovieDTO(Movie movie) {
+        if (movie == null) {
+            return null;
+        }
+        return new MovieDTO(
+                movie.getId(),
+                movie.getTitle(),
+                movie.getPosterPath(),
+                movie.getOverview(),
+                movie.getDirector(),
+                movie.getMainActors(),
+                movie.getGenreDescription(),
+                movie.getPosterUrl(),
+                movie.getNationality(),
+                movie.getTrailerUrl(),
+                movie.getImdbRating(),
+                movie.getReleaseDate(),
+                movie.getBraziliamTitle(),
+                movie.getPopularity(),
+                movie.getScore(),
+                movie.isWatched() // Incluído o campo score
+        );
     }
 
     private List<MovieDTO> fetchMoviesFromApi(int page) {
@@ -285,29 +297,6 @@ public class MovieService {
         if (dto.getId() != null) {
             movie.setId(dto.getId());
         }
-    }
-
-    private MovieDTO convertToMovieDTO(Movie movie) {
-        if (movie == null) {
-            return null;
-        }
-        return new MovieDTO(
-                movie.getId(),
-                movie.getTitle(),
-                movie.getPosterPath(),
-                movie.getOverview(),
-                movie.getDirector(),
-                movie.getMainActors(),
-                movie.getGenreDescription(),
-                movie.getPosterUrl(),
-                movie.getNationality(),
-                movie.getTrailerUrl(),
-                movie.getImdbRating(),
-                movie.getReleaseDate(),
-                movie.getBraziliamTitle(),
-                movie.getPopularity(),
-                movie.getScore() // Incluído o campo score
-        );
     }
 
 }

@@ -1,6 +1,15 @@
 <div class="conteudo">
   @if (movie) {
-  <h2>{{ movie.title }}</h2>
+  <h2>{{ movie.braziliamTitle ? movie.braziliamTitle : movie.title }}</h2>
+
+  <div (click)="toggleWatchedStatus(movie)">
+    <span *ngIf="!movie.watched" class="not-watched-icon">□</span>
+    <span *ngIf="movie.watched" class="watched-icon">■</span>
+    <span class="movie-status">{{
+      movie.watched ? "Assistido" : "Não Assistido"
+    }}</span>
+  </div>
+
   <p>{{ movie.overview }}</p>
   <img [src]="movie.posterUrl" alt="Movie Poster" class="movie-poster" />
   <p><strong>Director:</strong> {{ movie.director }}</p>
@@ -9,7 +18,7 @@
   <p><strong>Nationality:</strong> {{ movie.nationality }}</p>
   <p><strong>IMDB Rating:</strong> {{ movie.imdbRating }}</p>
   <p><strong>Release Date:</strong> {{ movie.releaseDate }}</p>
-  <p><strong>Brazilian Title:</strong> {{ movie.braziliamTitle }}</p>
+  <!--<p><strong>Brazilian Title:</strong> {{ movie.braziliamTitle }}</p> -->
   <iframe
     *ngIf="movie?.trailerUrl"
     width="400"
@@ -18,5 +27,6 @@
     frameborder="0"
     allowfullscreen
   ></iframe>
+
   }
 </div>

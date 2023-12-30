@@ -13,6 +13,7 @@ export class MovieDTO {
   releaseDate?: string;
   braziliamTitle?: string;
   score?: number;
+  watched?: boolean;
 
   constructor(init?: Partial<MovieDTO>) {
     Object.assign(this, init);

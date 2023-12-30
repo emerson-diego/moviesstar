@@ -26,7 +26,7 @@ public class MovieDTO {
     private String popularity;
     private Integer score;
 
-
+    private boolean watched;
 
     public MovieDTO(
             Long id,

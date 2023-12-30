@@ -36,4 +36,7 @@ public class Movie {
 
     private Integer score;
 
+    @Column(columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private boolean watched = true;
+
 }

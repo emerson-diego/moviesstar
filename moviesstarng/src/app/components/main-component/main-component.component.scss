@@ -28,6 +28,24 @@ h2 {
   }
 
 
+  .not-watched-icon, .watched-icon {
+    font-size: 24px; /* Tamanho aumentado */
+    cursor: pointer;
+  }
+
+  .not-watched-icon {
+    color: grey;
+  }
+
+  .watched-icon {
+    color: green;
+  }
+
+  .movie-status {
+    margin-left: 8px;
+    font-size: 16px;
+  }
+
 
 
 
