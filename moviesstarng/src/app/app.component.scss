@@ -7,7 +7,7 @@ app-header {
 .content {
   display: flex;
   justify-content: space-between; /* Espaçamento entre os componentes principais e a barra lateral */
-  height: calc(100vh - 60px); /* Altura total menos a altura do cabeçalho */
+
 }
 
 .main {
@@ -39,5 +39,7 @@ app-side-component {
 .movie-component {
   margin-right: 20px; /* Adjust the space as needed */
 }
+
+
 
 
