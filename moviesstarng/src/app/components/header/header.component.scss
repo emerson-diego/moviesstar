@@ -1,7 +1,8 @@
 .imagem-redimensionada {
-  width: 95%; /* Reduzir 30% na horizontal */
+
+
+  width: 100%; /* Para estender horizontalmente */
   height: 150px;
+  margin-right: 5px; /* Adicione uma margem esquerda mínima */
 }
-.content {
-  clear: both;
-}
+

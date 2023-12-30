@@ -5,3 +5,7 @@ Content-Type: application/json
 ### Requisição 2
 GET http://localhost:8083/movies
 Content-Type: application/json
+
+### Requisição 3
+POST http://localhost:8083/batch/start-job
+Content-Type: application/json

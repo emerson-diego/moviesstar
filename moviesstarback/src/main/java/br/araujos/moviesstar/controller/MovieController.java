@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,15 +31,6 @@ public class MovieController {
 
     }
 
-    @PostMapping("/savemovies")
-    public String saveMovies() {
-
-        List<MovieDTO> movies = movieService.fetchAllMovies();
-        movieService.saveMovies(movies);
-        return "Filmes salvos com sucesso";
-
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<MovieDTO> getMovieById(@PathVariable long id) {
         try {
@@ -54,5 +44,11 @@ public class MovieController {
             // Por exemplo, retornar um ResponseEntity com status de erro interno
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
+    }
+
+    @GetMapping("/top25")
+    public ResponseEntity<List<MovieDTO>> getTop25Movies() {
+        List<MovieDTO> movies = movieService.fetchTop25MoviesByScoreAndImdbRating();
+        return ResponseEntity.ok(movies);
     }
 }

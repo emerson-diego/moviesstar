@@ -13,7 +13,7 @@ app-header {
 .main {
   display: flex;
   justify-content: center; /* Centraliza os componentes principais horizontalmente */
-  align-items: center; /* Centraliza os componentes principais verticalmente */
+
   flex-grow: 1; /* Ocupa o espaço restante exceto a barra lateral */
 }
 
@@ -23,7 +23,7 @@ app-main-component {
 }
 
 .sidebar {
-  width: calc(40% - 10px); /* Largura restante menos um gap */
+  width: calc(60% - 10px); /* Largura restante menos um gap */
   display: flex;
   flex-direction: column;
   align-items: flex-end; /* Alinha a barra lateral à direita */

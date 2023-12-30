@@ -1,0 +1,27 @@
+/* Estilos para a lista de filmes */
+.movie-list {
+  list-style-type: none; /* Remove as bolinhas ao lado dos itens da lista */
+  padding: 0;
+}
+
+/* Estilos para cada item da lista de filmes */
+.movie-item {
+  margin-bottom: 10px; /* Espaçamento entre os itens */
+  background-color: #f2f2f2; /* Cor de fundo */
+  padding: 10px; /* Espaçamento interno */
+  border-radius: 5px; /* Cantos arredondados */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra suave */
+}
+
+/* Estilos para o título do filme */
+.movie-title {
+  font-size: 18px; /* Tamanho da fonte */
+  font-weight: bold; /* Negrito */
+  color: #333; /* Cor do texto */
+}
+
+/* Estilos para o score do filme */
+.movie-score {
+  font-size: 14px; /* Tamanho da fonte */
+  color: #777; /* Cor do texto */
+}

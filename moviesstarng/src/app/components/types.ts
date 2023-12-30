@@ -12,6 +12,7 @@ export class MovieDTO {
   imdbRating?: string;
   releaseDate?: string;
   braziliamTitle?: string;
+  score?: number;
 
   constructor(init?: Partial<MovieDTO>) {
     Object.assign(this, init);

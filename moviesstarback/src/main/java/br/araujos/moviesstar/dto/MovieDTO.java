@@ -1,8 +1,10 @@
 package br.araujos.moviesstar.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class MovieDTO {
 
     private Long id;
@@ -23,6 +25,8 @@ public class MovieDTO {
 
     private String popularity;
     private Integer score;
+
+
 
     public MovieDTO(
             Long id,

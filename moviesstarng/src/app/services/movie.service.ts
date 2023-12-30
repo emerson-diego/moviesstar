@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { MovieDTO } from '../components/types';
 
 @Injectable({
   providedIn: 'root',
@@ -12,5 +13,9 @@ export class MovieService {
 
   getMovieById(id: number): Observable<any> {
     return this.http.get(`${this.baseUrl}/${id}`);
+  }
+
+  getTop25Movies(): Observable<MovieDTO[]> {
+    return this.http.get<MovieDTO[]>(`${this.baseUrl}/top25`);
   }
 }

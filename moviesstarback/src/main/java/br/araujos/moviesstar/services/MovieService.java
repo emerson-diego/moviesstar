@@ -3,9 +3,12 @@ package br.araujos.moviesstar.services;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import br.araujos.moviesstar.dto.MovieDTO;
@@ -19,8 +22,9 @@ import okhttp3.Response;
 @Service
 public class MovieService {
 
+    private static final int MAX_PAGES = 50;
+    private static final String BASE_URL = "https://api.themoviedb.org/3/movie/popular";
     private final OkHttpClient client;
-    private final String baseUrl = "https://api.themoviedb.org/3/movie/popular";
 
     private final MovieRepository movieRepository;
 
@@ -33,74 +37,10 @@ public class MovieService {
 
     public List<MovieDTO> fetchAllMovies() {
         List<MovieDTO> allMovies = new ArrayList<>();
-        int page = 1;
-        final int maxPages = 50; // Para buscar 1000 filmes
-
-        while (page <= maxPages) {
-            String url = baseUrl + "?page=" + page;
-            Request request = new Request.Builder().url(url).build();
-
-            try (Response response = client.newCall(request).execute()) {
-                if (!response.isSuccessful()) {
-                    System.err.println("Erro ao buscar filmes na página " + page + ": " + response);
-                    page++;
-                    continue;
-                }
-
-                String responseBody = response.body().string();
-                JSONObject jsonResponse = new JSONObject(responseBody);
-                JSONArray moviesArray = jsonResponse.getJSONArray("results");
-
-                // double popularityThreshold = 1000.0; // Defina um limiar realista aqui
-
-                for (int i = 0; i < moviesArray.length(); i++) {
-                    JSONObject movieJson = moviesArray.getJSONObject(i);
-                    // double popularity = movieJson.optDouble("popularity", 0.0);
-
-                    // if (popularity > popularityThreshold) {
-                    long movieId = movieJson.getLong("id");
-                    MovieDTO movie = fetchMovieDetails(movieId, movieJson);
-                    allMovies.add(movie);
-                    // }
-                }
-
-                int totalPages = jsonResponse.getInt("total_pages");
-                if (page >= totalPages) {
-                    break;
-                }
-                page++;
-            } catch (IOException e) {
-                System.err.println("Erro de IO ao buscar filmes na página " + page + ": " + e.getMessage());
-                page++;
-            }
+        for (int page = 1; page <= MAX_PAGES; page++) {
+            allMovies.addAll(fetchMoviesFromApi(page));
         }
-
         return allMovies;
-    }
-
-    public void saveMovies(List<MovieDTO> movieDTOs) {
-        for (MovieDTO dto : movieDTOs) {
-            Movie movie = movieRepository.findById(dto.getId())
-                    .orElse(new Movie()); // Cria um novo filme se não existir
-
-            // Atualiza as informações do filme com os dados do DTO
-            // movie.setId(dto.getId());
-            movie.setTitle(dto.getTitle());
-            movie.setPosterPath(dto.getPosterPath());
-            movie.setOverview(dto.getOverview());
-            movie.setDirector(dto.getDirector()); // Pode ser null
-            movie.setMainActors(dto.getMainActors()); // Pode ser null
-            movie.setGenreDescription(dto.getGenreDescription()); // Pode ser null
-            movie.setPosterUrl(dto.getPosterUrl()); // Pode ser null
-            movie.setReleaseDate(dto.getReleaseDate());
-            movie.setNationality(dto.getNationality());
-            movie.setTrailerUrl(dto.getTrailerUrl());
-            movie.setImdbRating(dto.getImdbRating());
-            movie.setBraziliamTitle(dto.getBraziliamTitle());
-            movie.setPopularity(dto.getPopularity());
-
-            movieRepository.save(movie); // Salva o filme no banco de dados
-        }
     }
 
     public MovieDTO fetchMovieById(long movieId) throws IOException {
@@ -151,6 +91,42 @@ public class MovieService {
         // Salva o filme no banco de dados (atualiza se já existir ou cria um novo se
         // não existir)
         movieRepository.save(movie);
+    }
+
+    public List<MovieDTO> fetchTop25MoviesByScoreAndImdbRating() {
+        Pageable pageable = PageRequest.of(0, 25);
+        return movieRepository.findTop25ByOrderByScoreDescImdbRatingDesc(pageable).stream()
+                .map(this::convertToMovieDTO)
+                .collect(Collectors.toList());
+    }
+
+    private List<MovieDTO> fetchMoviesFromApi(int page) {
+        List<MovieDTO> movies = new ArrayList<>();
+        String url = BASE_URL + "?page=" + page;
+        Request request = new Request.Builder().url(url).build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                // logError("Erro ao buscar filmes", page, response);
+                return movies;
+            }
+
+            String responseBody = response.body().string();
+            JSONObject jsonResponse = new JSONObject(responseBody);
+            JSONArray moviesArray = jsonResponse.getJSONArray("results");
+
+            for (int i = 0; i < moviesArray.length(); i++) {
+                JSONObject movieJson = moviesArray.getJSONObject(i);
+                long movieId = movieJson.getLong("id");
+                movies.add(fetchMovieDetails(movieId, movieJson));
+            }
+
+            // Remover o break aqui era necessário
+        } catch (IOException e) {
+            // logError("Erro de IO ao buscar filmes", page, e);
+        }
+
+        return movies;
     }
 
     private MovieDTO fetchMovieDetails(long movieId, JSONObject movieJson) throws IOException {
@@ -309,6 +285,29 @@ public class MovieService {
         if (dto.getId() != null) {
             movie.setId(dto.getId());
         }
+    }
+
+    private MovieDTO convertToMovieDTO(Movie movie) {
+        if (movie == null) {
+            return null;
+        }
+        return new MovieDTO(
+                movie.getId(),
+                movie.getTitle(),
+                movie.getPosterPath(),
+                movie.getOverview(),
+                movie.getDirector(),
+                movie.getMainActors(),
+                movie.getGenreDescription(),
+                movie.getPosterUrl(),
+                movie.getNationality(),
+                movie.getTrailerUrl(),
+                movie.getImdbRating(),
+                movie.getReleaseDate(),
+                movie.getBraziliamTitle(),
+                movie.getPopularity(),
+                movie.getScore() // Incluído o campo score
+        );
     }
 
 }
