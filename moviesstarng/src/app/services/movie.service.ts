@@ -33,8 +33,8 @@ export class MovieService {
     );
   }
 
-  getRandomMovie(): Observable<MovieDTO> {
-    return this.http.get<MovieDTO>(`${this.baseUrl}/random`);
+  getRandomMovies(): Observable<MovieDTO[]> {
+    return this.http.get<MovieDTO[]>(`${this.baseUrl}/random`);
   }
 
   submitDuelResult(winnerId: number, loserId: number): Observable<any> {

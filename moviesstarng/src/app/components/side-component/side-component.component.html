@@ -1,7 +1,8 @@
 <div>
   <h2>Top 25 Movies</h2>
   <ul class="movie-list">
-    <li *ngFor="let movie of topMovies" class="movie-item">
+    <li *ngFor="let movie of topMovies; let i = index" class="movie-item">
+      <span class="movie-number">{{ i + 1 }}.</span>
       <span class="movie-title">{{
         movie.braziliamTitle ? movie.braziliamTitle : movie.title
       }}</span>

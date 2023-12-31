@@ -39,4 +39,7 @@ public class Movie {
     @Column(columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean watched = true;
 
+    @Column(columnDefinition = "INTEGER DEFAULT 0")
+    private int duelParticipations = 0;
+
 }

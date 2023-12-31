@@ -19,14 +19,14 @@
   <p><strong>IMDB Rating:</strong> {{ movie.imdbRating }}</p>
   <p><strong>Release Date:</strong> {{ movie.releaseDate }}</p>
   <!--<p><strong>Brazilian Title:</strong> {{ movie.braziliamTitle }}</p> -->
-  <iframe
+  <!-- <iframe
     *ngIf="movie?.trailerUrl"
     width="400"
     height="315"
     [src]="getSafeYoutubeUrl(movie.trailerUrl)"
     frameborder="0"
     allowfullscreen
-  ></iframe>
+  ></iframe> -->
 
   }
 </div>

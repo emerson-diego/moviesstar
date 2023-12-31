@@ -109,15 +109,24 @@ public class MovieService {
                 movie.getBraziliamTitle(),
                 movie.getPopularity(),
                 movie.getScore(),
-                movie.isWatched() // Incluído o campo score
+                movie.isWatched(),
+                movie.getDuelParticipations() // Incluído o campo score
         );
     }
 
     public MovieDTO getRandomMovie() {
-        return movieRepository.findRandomMovies(PageRequest.of(0, 1)).stream()
+        return movieRepository.findRandomWatchedMoviesWithDuelPriority(PageRequest.of(0, 1)).stream()
                 .map(this::convertToMovieDTO)
                 .findFirst()
                 .orElse(null); // Retorna null se nenhum filme for encontrado
+    }
+
+    public List<MovieDTO> getRandomMoviesPair() {
+        List<Movie> randomMovies = movieRepository.findRandomWatchedMoviesWithDuelPriority(PageRequest.of(0, 2));
+
+        return randomMovies.stream()
+                .map(this::convertToMovieDTO)
+                .collect(Collectors.toList());
     }
 
     public void updateMovieScores(Long winnerId, Long loserId) {
@@ -136,6 +145,9 @@ public class MovieService {
 
         winner.setScore(winnerScore + (int) (K * (1 - winnerExpected)));
         loser.setScore(loserScore + (int) (K * (0 - loserExpected)));
+
+        winner.setDuelParticipations(winner.getDuelParticipations() + 1);
+        loser.setDuelParticipations(loser.getDuelParticipations() + 1);
 
         movieRepository.save(winner);
         movieRepository.save(loser);
@@ -228,7 +240,8 @@ public class MovieService {
                     imdbRating,
                     releaseDate,
                     brazilianTitle,
-                    popularity
+                    popularity,
+                    0
 
             );
 

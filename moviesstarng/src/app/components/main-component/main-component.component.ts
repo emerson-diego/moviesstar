@@ -24,15 +24,15 @@ export class MainComponent {
   ) {}
 
   ngOnInit(): void {
-    if (!this.movie) {
+    /* if (!this.movie) {
       this.loadRandomMovie();
-    }
+    }*/
   }
 
   loadRandomMovie() {
-    this.movieService.getRandomMovie().subscribe((movie) => {
+    /*this.movieService.getRandomMovie().subscribe((movie) => {
       this.movie = movie;
-    });
+    });*/
   }
 
   toggleWatchedStatus(event: Event, movie: MovieDTO): void {

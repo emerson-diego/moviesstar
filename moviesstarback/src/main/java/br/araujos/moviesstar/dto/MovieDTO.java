@@ -28,6 +28,8 @@ public class MovieDTO {
 
     private boolean watched;
 
+    private int duelParticipations;
+
     public MovieDTO(
             Long id,
             String title,
@@ -42,7 +44,7 @@ public class MovieDTO {
             String imdbRating,
             String releaseDate,
             String braziliamTitle,
-            String popularity) {
+            String popularity, int duelParticipations) {
         this.id = id;
         this.title = title;
         this.posterPath = posterPath;
@@ -57,6 +59,7 @@ public class MovieDTO {
         this.releaseDate = releaseDate;
         this.braziliamTitle = braziliamTitle;
         this.popularity = popularity;
+        this.duelParticipations = duelParticipations;
         // Os campos não incluídos no construtor são inicializados com valores padrão
         // (null)
     }

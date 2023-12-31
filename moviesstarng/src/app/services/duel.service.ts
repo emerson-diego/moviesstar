@@ -10,6 +10,7 @@ export class DuelResultService {
   duelResult$ = this.duelResultSubject.asObservable();
 
   announceDuelResult() {
+    console.log('mudou');
     this.duelResultSubject.next();
   }
 }

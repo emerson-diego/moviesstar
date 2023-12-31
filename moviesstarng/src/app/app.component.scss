@@ -42,6 +42,29 @@ app-side-component {
   margin-right: 20px; /* Adjust the space as needed */
 }
 
+/* Não é necessário flex-grow: 1 nos componentes principais */
+app-main-component,
+app-side-component {
+  overflow-y: auto;
+}
+
+.content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start; /* Alinhe os elementos no topo */
+}
+
+.main {
+  display: flex;
+  flex-direction: column; /* Adicione uma coluna para melhorar o alinhamento vertical */
+}
+
+/* Seu arquivo de estilo (duel.component.scss) */
+.highlighted {
+  background-color: #f0f0f0;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
 
 
 

@@ -22,13 +22,13 @@ export class SideComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Carregue os filmes na inicialização
-    this.loadTopMovies();
-
     // Ouça o evento de resultado do duelo e recarregue os filmes quando ele ocorrer
     this.duelResultService.duelResult$.subscribe(() => {
+      console.log('recarregou');
       this.loadTopMovies();
     });
+    // Carregue os filmes na inicialização
+    this.loadTopMovies();
   }
 
   loadTopMovies() {

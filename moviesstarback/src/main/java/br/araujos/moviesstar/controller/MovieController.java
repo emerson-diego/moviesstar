@@ -71,10 +71,11 @@ public class MovieController {
     }
 
     @GetMapping("/random")
-    public ResponseEntity<MovieDTO> getRandomMovie() {
-        MovieDTO movie = movieService.getRandomMovie();
-        if (movie != null) {
-            return ResponseEntity.ok(movie);
+    public ResponseEntity<List<MovieDTO>> getRandomMoviesPair() {
+        List<MovieDTO> moviesList = movieService.getRandomMoviesPair();
+
+        if (!moviesList.isEmpty()) {
+            return ResponseEntity.ok(moviesList);
         } else {
             return ResponseEntity.notFound().build();
         }
