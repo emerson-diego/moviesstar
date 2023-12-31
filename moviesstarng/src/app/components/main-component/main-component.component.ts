@@ -11,7 +11,7 @@ import { MovieDTO } from '../types';
   imports: [CommonModule, MatSnackBarModule],
   templateUrl: './main-component.component.html',
   styleUrl: './main-component.component.scss',
-  providers: [MovieService],
+  providers: [],
 })
 export class MainComponent {
   @Input() movie?: MovieDTO; // Recebe o filme como entrada

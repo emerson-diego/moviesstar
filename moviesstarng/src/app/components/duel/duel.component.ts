@@ -12,7 +12,6 @@ import { DuelResultService } from './../../services/duel.service';
   imports: [CommonModule, MatSnackBarModule, MainComponent],
   templateUrl: './duel.component.html',
   styleUrl: './duel.component.scss',
-  providers: [MovieService, DuelResultService],
 })
 export class MovieDuelComponent implements OnInit {
   movie1?: MovieDTO;
@@ -48,8 +47,8 @@ export class MovieDuelComponent implements OnInit {
       this.movie1 = movies[0];
       this.movie2 = movies[1];
 
-     // console.log(this.movie1);
-     // console.log(this.movie2);
+      // console.log(this.movie1);
+      // console.log(this.movie2);
       // }
     });
   }

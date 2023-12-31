@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { catchError, of } from 'rxjs';
+import { EMPTY, Subject, catchError, of, takeUntil } from 'rxjs';
 import { DuelResultService } from '../../services/duel.service';
 import { MovieService } from '../../services/movie.service';
 import { MovieDTO } from '../types';
@@ -11,9 +11,10 @@ import { MovieDTO } from '../types';
   imports: [CommonModule],
   templateUrl: './side-component.component.html',
   styleUrl: './side-component.component.scss',
-  providers: [MovieService, DuelResultService],
+  providers: [],
 })
 export class SideComponent implements OnInit {
+  private destroy$ = new Subject<void>();
   topMovies: MovieDTO[] = [];
 
   constructor(
@@ -22,13 +23,19 @@ export class SideComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Ouça o evento de resultado do duelo e recarregue os filmes quando ele ocorrer
-    this.duelResultService.duelResult$.subscribe(() => {
-      console.log('recarregou');
-      this.loadTopMovies();
-    });
-    // Carregue os filmes na inicialização
     this.loadTopMovies();
+    this.duelResultService.duelResult$
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError((error) => {
+          console.error('Erro ao carregar os filmes: ', error);
+          return EMPTY;
+        })
+      )
+      .subscribe(() => {
+        console.log('recarregou');
+        this.loadTopMovies();
+      });
   }
 
   loadTopMovies() {
@@ -43,5 +50,10 @@ export class SideComponent implements OnInit {
       .subscribe((movies) => {
         this.topMovies = movies;
       });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
