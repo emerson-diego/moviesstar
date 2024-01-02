@@ -102,6 +102,9 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludeDevTools>false</excludeDevTools>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
