@@ -13,6 +13,6 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
     @Query("SELECT m FROM Movie m ORDER BY m.score DESC, m.imdbRating DESC")
     List<Movie> findTop25ByOrderByScoreDescImdbRatingDesc(Pageable pageable);
 
-    @Query("SELECT m FROM Movie m WHERE m.watched = true ORDER BY m.duelParticipations ASC, RANDOM()")
+    @Query("SELECT m FROM Movie m WHERE m.watched = true  ORDER BY m.duelParticipations ASC, RANDOM()")
     List<Movie> findRandomWatchedMoviesWithDuelPriority(Pageable pageable);
 }
