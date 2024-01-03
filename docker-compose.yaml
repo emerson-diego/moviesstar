@@ -1,0 +1,58 @@
+version: "3.8"
+services:
+  meu-postgres:
+    image: postgres
+    #container_name:meu-postgres
+    environment:
+      POSTGRES_PASSWORD: 1
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - moviesstar-network
+
+  moviesstarback-dev:
+    build: C:/code/moviesstar/moviesstarback/
+    image: moviesstarback-dev:1.0.0
+
+    #build:
+    #context: C:/code/moviesstar/moviesstarback/
+    #dockerfile: Dockerfile # Se o Dockerfile estiver em outro lugar ou tiver outro nome, atualize aqui
+    ports:
+      - "8083:8083"
+    volumes:
+      - C:/code/moviesstar/moviesstarback/src:/app/src
+      - C:/code/moviesstar/moviesstarback/pom.xml:/app/pom.xml
+      #- C:/code/moviesstar/moviesstarback/src:/app/src
+      #- C:/code/moviesstar/moviesstarback/target:/app/target
+      #- C:/code/moviesstar/moviesstarback/pom.xml:/app/pom.xml
+      #- ./moviesstarback/src:/app/src
+      #- ./moviesstarback/pom.xml:/app/pom.xml
+    depends_on:
+      - meu-postgres
+    networks:
+      - moviesstar-network
+
+  moviesstarng-dev:
+    build: C:/code/moviesstar/moviesstarng/
+    image: moviesstarng-dev:1.0.0
+    #build:
+    #context: C:/code/moviesstar/moviesstarng
+    #dockerfile: Dockerfile # Se o Dockerfile estiver em outro lugar ou tiver outro nome, atualize aqui
+    ports:
+      - "4200:4200"
+    volumes:
+      - C:/code/moviesstar/moviesstarng:/app
+    depends_on:
+      - moviesstarback-dev
+    networks:
+      - moviesstar-network
+
+networks:
+  moviesstar-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    external: true

@@ -1,0 +1,14 @@
+# Usar a imagem base do JDK
+FROM openjdk:17
+
+# Definir o diretório de trabalho
+WORKDIR /app
+
+# Copiar o diretório de classes compiladas
+COPY target/classes /app/classes
+
+# Definir o classpath para incluir as classes compiladas
+ENV CLASSPATH=/app/classes
+
+# Comando para executar a aplicação
+CMD ["java", "-cp", "/app/classes", "br.araujos.moviesstar.MoviesstarApplication"]
