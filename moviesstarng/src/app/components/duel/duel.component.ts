@@ -75,7 +75,7 @@ export class MovieDuelComponent implements OnInit {
         // this.duelResultService.announceDuelResult();
         this.loadRandomMovies(); // Carregar novos filmes para o próximo duelo
         // Após a conclusão do duelo, avise o app-side-component para recarregar
-        this.duelResultService.announceDuelResult();
+        // this.duelResultService.announceDuelResult();
       });
     } else {
       // Lida com o caso em que winner.id ou loser.id é undefined
